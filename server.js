@@ -258,6 +258,7 @@ router.route('/reviews')
             review.reviewer = User.username;
             review.save(function (err) {
                 if (err) {
+                    console.log(err)
                     return res.status(400).send(err)
                 } else {
                     return res.status(200).json("Review saved.")
