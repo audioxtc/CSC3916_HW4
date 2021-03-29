@@ -35,9 +35,6 @@ reviewSchema.pre('save', function(next) {
     if (this.rating === null || this.rating < 1 || this.rating > 5) {
         return next({code: 400, message: "Invalid rating."})
     }
-    if (this.reviewer === '' || this.reviewer.length > 100) {
-        return next({code: 400, message: "Invalid reviewer name. Must not be null or greater than 100 chars."})
-    }
     //valid review info
     next();
 });
