@@ -296,7 +296,7 @@ router.route('/reviews')
 router.route('/movies/:title')
     .get(authJwtController.isAuthenticated, function(req, res) {
         if (req.query.reviews) {
-            var movieReviews = Movie.aggregate([
+           Movie.aggregate([
                 { $match : {title : req.params.title } },
                 {
                     $lookup: {
@@ -307,6 +307,7 @@ router.route('/movies/:title')
                     }
                 }
             ]).exec(function(err, moviereviews) {
+                console.log(moviereviews)
                 if (err) {
                     return res.status(400).json(err)
                 } else {
