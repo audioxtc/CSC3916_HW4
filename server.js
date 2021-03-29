@@ -251,7 +251,7 @@ router.put('/movies', authJwtController.isAuthenticated,
 router.route('/reviews')
     .post(authJwtController.isAuthenticated, function(req, res) {
         if (req.body.movietitle) {
-            var review = Review();
+            var review = new Review();
             review.rating = req.body.rating;
             review.quote = req.body.quote;
             review.movietitle = req.body.movietitle;
