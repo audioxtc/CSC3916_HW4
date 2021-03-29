@@ -268,7 +268,8 @@ router.route('/reviews')
             review.rating = req.body.rating;
             review.quote = req.body.quote;
             review.movietitle = req.body.movietitle;
-            review.reviewer = User.username;
+            review.reviewer = req.user.username;
+            console.log(User.username)
             review.save(function (err) {
                 if (err) {
                     console.log(err)
