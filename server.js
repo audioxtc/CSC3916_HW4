@@ -297,7 +297,7 @@ router.route('/reviews')
 //first get both collections
 router.get('/movies/:title', authJwtController.isAuthenticated, function(req, res) {
         if (req.query.reviews) {
-           Movie.aggregate([
+           Review.aggregate([
                 { $match : {title : req.params.title } },
                 {
                     $lookup: {
