@@ -15,7 +15,7 @@ var reviewSchema = new Schema({
     rating: Number,
     quote: String,
     reviewer: String,
-    movietitle: {type: String, required: true},
+    movietitle: String,
 
 });
 
