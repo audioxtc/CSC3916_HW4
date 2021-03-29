@@ -306,7 +306,8 @@ router.get('/movies/:title', authJwtController.isAuthenticated, function(req, re
                     }
                 }
             ]).exec(function(err, moviereviews) {
-                console.log(moviereviews)
+                console.log(moviereviews.length)
+                console.log(JSON.stringify(moviereviews));
                 if (err) {
                     return res.status(400).json(err)
                 } else {
