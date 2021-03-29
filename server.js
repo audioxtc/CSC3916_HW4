@@ -313,7 +313,7 @@ router.get('/movies/:title', authJwtController.isAuthenticated, function(req, re
                 if (err) {
                     return res.status(400).json(err)
                 } else {
-                    return res.status(200).json(moviereviews)
+                    return res.status(200).json(moviereviews[0])
                 }
             })
         }
