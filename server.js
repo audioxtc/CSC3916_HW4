@@ -132,9 +132,6 @@ router.put('/movies/id', authJwtController.isAuthenticated, function (req, res) 
             res.status(405).send(err);
         } else {
 
-            if (req.body.leadactors){
-                movie.leadActors = req.body.leadactors
-            }
             if (req.body.title){
                 movie.title = req.body.title
             }
@@ -296,11 +293,11 @@ router.route('/reviews')
 
 
 //first get both collections
-router.route('/movies/:reviews?')
+router.route('/movies/:reviews')
     .get(authJwtController.isAuthenticated, function(req, res) {
         if (req.query.reviews) {
             var movieReviews = Movie.aggregate([
-                //{ $match : {Movie.title : req.body.title } }
+                { $match : {title : req.body.title } },
                 {
                     $lookup: {
                         "from": "movies",
@@ -309,9 +306,13 @@ router.route('/movies/:reviews?')
                         "as": "moviereviews"
                     }
                 }
-            ]).exec()
-            return res.status(200).json([movieReviews])
-
+            ]).exec(function(err, moviereviews) {
+                if (err) {
+                    return res.status(400).json(err)
+                } else {
+                    return res.status(200).json([moviereviews])
+                }
+            })
         }
     });
 
