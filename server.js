@@ -302,7 +302,7 @@ router.route('/movies/:reviews')
                     $lookup: {
                         "from": "movies",
                         "localField": "title",
-                        "foreignField": "reviewID",
+                        "foreignField": "movietitle",
                         "as": "moviereviews"
                     }
                 }
