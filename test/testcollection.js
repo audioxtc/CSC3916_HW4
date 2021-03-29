@@ -14,10 +14,11 @@ let login_details = {
     password: '123@abc'
 }
 
-let movie_details = {
-    title: "Notting Hill",
-    year: 1999,
-    //genre: 'Comedy',
+let review_details = {
+    movietitle: "Swingers",
+    rating: 5,
+    username: User.username,
+    quote: "A totally awesome film about guys searching for their dating identity."
     //leadactors: [
     //    {actorName: 'Hugh Grant', characterName: 'William Thacker'},
     //    {actorName: 'Julia Roberts', characterName: 'Anna Scott'},
@@ -68,9 +69,9 @@ describe('Register, Login and Call Test Collection with Basic Auth and JWT Auth'
                         //    .end((err, res) => {
                         //        res.should.have.status(200);
                                 chai.request(server)
-                                    .put('/movies')
+                                    .post('/reviews')
                                     .set('Authorization', token)
-                                    .send(movie_details)
+                                    .send(review_details)
                                     .end((err, res) => {
                                         res.should.have.status(200);
                                         done();
