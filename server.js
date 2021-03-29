@@ -310,7 +310,7 @@ router.route('/movies/:reviews')
                 if (err) {
                     return res.status(400).json(err)
                 } else {
-                    return res.status(200).json([moviereviews])
+                    return res.status(200).json(movieReviews)
                 }
             })
         }
