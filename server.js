@@ -128,13 +128,28 @@ router.get('/movies/:movieID', authJwtController.isAuthenticated, function (req,
 router.put('/movies/id', authJwtController.isAuthenticated, function (req, res) {
     Movie.findById(req.body.id, function (err, movie) {
         if (err) {
+            console.log(err)
             res.status(405).send(err);
         } else {
-            movie.leadActors = req.body.leadactors;
-            movie.title = req.body.title;
-            movie.year = req.body.year;
-            movie.genre = req.body.genre;
 
+            if (req.body.leadactors){
+                movie.leadActors = req.body.leadactors
+            }
+            if (req.body.title){
+                movie.title = req.body.title
+            }
+            if (req.body.year) {
+                movie.year = req.body.year;
+            }
+            if (req.body.genre) {
+                movie.genre = req.body.genre;
+            }
+            if (req.body.leadactors) {
+                for (let i = 0; i < req.body.leadactors.length; i++) {
+                    movie.leadActors[i].actorName = req.body.leadactors[i].actorName;
+                    movie.leadActors[i].characterName = req.body.leadactors[i].characterName;
+                }
+            }
             movie.save(function (err) {
                 if (err)
                     return res.status(404).json("error saving updated movie.");
@@ -211,10 +226,7 @@ router.post('/movies', authJwtController.isAuthenticated, function (req, res) {
 
 router.put('/movies', authJwtController.isAuthenticated,
     function (req, res) {
-        //var iD = req.params.id;
-        //var movie = new Movie();
-        //movie2.title = req.params.title;
-        //var o_id = new ObjectID();
+        const genres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Thriller', 'Western'];
         Movie.findOne({title: req.body.title}, function (err, movie) {
             console.log(movie);
             if (err) {
@@ -224,7 +236,9 @@ router.put('/movies', authJwtController.isAuthenticated,
                     movie.year = req.body.year;
                 }
                 if (req.body.genre) {
-                    movie.genre = req.body.genre;
+                    if (!genres.includes(req.body.genre)) {
+                        movie.genre = req.body.genre;
+                    }
                 }
                 if (req.body.leadactors) {
                     for (let i = 0; i < req.body.leadactors.length; i++) {
