@@ -106,7 +106,7 @@ router.get('/movies', authJwtController.isAuthenticated, function (req, res) {
     })
 
 });
-
+/*
 router.get('/movies/:movieID', authJwtController.isAuthenticated, function (req, res) {
     //let movieID = req.params.movieID
     console.log(req.body);
@@ -124,6 +124,8 @@ router.get('/movies/:movieID', authJwtController.isAuthenticated, function (req,
     })
 
 });
+
+ */
 
 router.put('/movies/id', authJwtController.isAuthenticated, function (req, res) {
     Movie.findById(req.body.id, function (err, movie) {
