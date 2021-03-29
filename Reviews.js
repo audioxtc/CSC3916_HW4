@@ -12,11 +12,10 @@ try {
 mongoose.set('useCreateIndex', true);
 
 var reviewSchema = new Schema({
+    movietitle: String,
     rating: Number,
     quote: String,
     reviewer: String,
-    movietitle: String,
-
 });
 
 //validate review rating, quote, reviewer, movieID
@@ -26,9 +25,9 @@ reviewSchema.pre('save', function(next) {
     if (this.movietitle === null){
         return next({code: 400, message: "Invalid movie ID."})
     }
-    if (!this.movietitle.findOne({movietitle})){
-        return next({code: 400, message: "Movie cannot be found."})
-    }
+    //if (!this.movietitle.findOne({this.movietitle})){
+    //    return next({code: 400, message: "Movie cannot be found."})
+    //}
     if (this.quote === '') {
         return next({code: 400, message: "Quote cannot be null."})
     }
