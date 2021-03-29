@@ -14,6 +14,8 @@ var cors = require('cors');
 var User = require('./Users');
 var Movie = require('./Movies');
 var Actor = require('./Actors');
+var Review = require('./Reviews');
+const mongoose = require("mongoose");
 
 
 var app = express();
@@ -89,33 +91,13 @@ router.post('/signin', function (req, res) {
 
 //implement movie route
 router.get('/movies', authJwtController.isAuthenticated, function (req, res) {
-        console.log(req.body);
-        //var movie = new Movie();
-        Movie.find({}, function(err, movies){
-            if (err) {
-                res.status(405).send(err);
-                console.log(movies);
-            }
-            else{
-                var o = getJSONObjectForMovieRequirement(req);
-                res = res.status(200);
-                o.body = {msg: [movies]};
-                res.json(o);
-            }
-        })
-
-    });
-
-router.get('/movies/:movieID', authJwtController.isAuthenticated, function (req, res) {
-    let movieID
     console.log(req.body);
     //var movie = new Movie();
-    Movie.find({}, function(err, movies){
+    Movie.find({}, function (err, movies) {
         if (err) {
             res.status(405).send(err);
             console.log(movies);
-        }
-        else{
+        } else {
             var o = getJSONObjectForMovieRequirement(req);
             res = res.status(200);
             o.body = {msg: [movies]};
@@ -125,44 +107,46 @@ router.get('/movies/:movieID', authJwtController.isAuthenticated, function (req,
 
 });
 
-    /*
-    .put(authJwtController.isAuthenticated, function (req, res) {
-        movie = new Movie();
-        movie.findById({id: req.body.id}, function(err, movie){
-            if (err){
-                res.status(405).send(err)
-            }
-            else {
-                movie.leadActors = req.body.leadactors;
-                movie.title = req.body.title;
-                movie.year = req.body.year;
-                movie.genre = req.body.genre;
-                //movie.id = req.body.movieid;
-                var o = getJSONObjectForMovieRequirement(req);
-                res = res.status(200);
-                o.body = {msg: "movie updated."}
-                res.json(o);
-            }
-        })
-        console.log(req.body);
-
-        if (req.get('Content-Type')) {
-            res = res.type(req.get('Content-Type'));
+router.get('/movies/:movieID', authJwtController.isAuthenticated, function (req, res) {
+    //let movieID = req.params.movieID
+    console.log(req.body);
+    //var movie = new Movie();
+    Movie.findById(req.params.movieID, function (err, movie) {
+        if (err) {
+            res.status(405).send(err);
+            console.log(movie);
+        } else {
+            var o = getJSONObjectForMovieRequirement(req);
+            return res.status(200).json(movie)
+            o.body = {msg: movie};
+            res.json(o);
         }
-        var o = getJSONObjectForMovieRequirement(req);
-        o.body = {msg: "movie updated."}
-        res.json(o);
-    }
+    })
 
+});
 
-)
+router.put('/movies/id', authJwtController.isAuthenticated, function (req, res) {
+    Movie.findById(req.body.id, function (err, movie) {
+        if (err) {
+            res.status(405).send(err);
+        } else {
+            movie.leadActors = req.body.leadactors;
+            movie.title = req.body.title;
+            movie.year = req.body.year;
+            movie.genre = req.body.genre;
 
-     */
+            movie.save(function (err) {
+                if (err)
+                    return res.status(404).json("error saving updated movie.");
+                else {
+                    return res.status(200).json("movie updated.");
+                }
+            })
+        }
+    });
+});
 
 router.delete('/movies', authJwtController.isAuthenticated, function (req, res) {
-    //if (req.get('Content-Type')) {
-    //    res = res.type(req.get('Content-Type'));
-    //}
     if (req.body.title) {
         Movie.findOneAndDelete({title: req.body.title}, function (err, docs) {
             if (err) {
@@ -170,11 +154,10 @@ router.delete('/movies', authJwtController.isAuthenticated, function (req, res) 
                 console.log(err, docs);
                 return res.json(err);
             }
-            if (docs === null){
-                res=res.status(401);
+            if (docs === null) {
+                res = res.status(401);
                 return res.json("Movie not found.");
-            }
-            else {
+            } else {
                 res = res.status(200);
                 console.log(docs);
                 var o = getJSONObjectForMovieRequirement(req);
@@ -183,7 +166,7 @@ router.delete('/movies', authJwtController.isAuthenticated, function (req, res) 
             }
         });
     }
-    if (req.body.id){
+    if (req.body.id) {
         console.log("got to id");
 
         Movie.find({_id: req.body.id}), function (err, docs) {
@@ -191,8 +174,7 @@ router.delete('/movies', authJwtController.isAuthenticated, function (req, res) 
                 res.status(405).send(err);
                 console.log(err);
                 return res.json(err);
-            }
-            else {
+            } else {
                 res = res.status(200);
                 console.log("Movie deleted successfully:", docs);
                 var o = getJSONObjectForMovieRequirement(req);
@@ -206,69 +188,174 @@ router.delete('/movies', authJwtController.isAuthenticated, function (req, res) 
 
 
 router.post('/movies', authJwtController.isAuthenticated, function (req, res) {
-        console.log(req.body);
-        var movie = new Movie();
-        movie.leadActors = req.body.leadactors;
-        movie.title = req.body.title;
-        movie.year = req.body.year;
-        movie.genre = req.body.genre;
-        //movie.id = req.body.movieid;
-        movie.save(function (err)  {
-            if (err) {
-                res.status(405).send(err);
-                console.log(err);
-            }
-            else {
-                var o = getJSONObjectForMovieRequirement(req);
-                res = res.status(200);
-                o.body = {msg: "movie saved."};
-                res.json(o);
-            }
-        });
-        //console.log('Movie saved.');
+    console.log(req.body);
+    var movie = new Movie();
+    movie.leadActors = req.body.leadactors;
+    movie.title = req.body.title;
+    movie.year = req.body.year;
+    movie.genre = req.body.genre;
+    //movie.id = req.body.movieid;
+    movie.save(function (err) {
+        if (err) {
+            res.status(405).send(err);
+            console.log(err);
+        } else {
+            var o = getJSONObjectForMovieRequirement(req);
+            res = res.status(200);
+            o.body = {msg: "movie saved."};
+            res.json(o);
+        }
     });
+    //console.log('Movie saved.');
+});
 
 router.put('/movies', authJwtController.isAuthenticated,
-    function(req, res) {
-    //var iD = req.params.id;
-    //var movie = new Movie();
-    //movie2.title = req.params.title;
-    //var o_id = new ObjectID();
-    Movie.findOne({title: req.body.title},function(err, movie) {
-        console.log(movie);
-        if (err){
-            res.status(405).send(err);
-        }
-        else {
-            if (req.body.year){
-                movie.year = req.body.year;
-            }
-            if (req.body.genre){
-                movie.genre = req.body.genre;
-            }
-            if (req.body.leadactors){
-                for (let i=0; i<req.body.leadactors.length; i++){
-                    movie.leadActors[i].actorName = req.body.leadactors[i].actorName;
-                    movie.leadActors[i].characterName = req.body.leadactors[i].characterName;
-                }
-            }
+    function (req, res) {
+        //var iD = req.params.id;
+        //var movie = new Movie();
+        //movie2.title = req.params.title;
+        //var o_id = new ObjectID();
+        Movie.findOne({title: req.body.title}, function (err, movie) {
             console.log(movie);
-            movie.save(function(err){
-                if (err){
-                    res.status(405).send(err);
+            if (err) {
+                res.status(405).send(err);
+            } else {
+                if (req.body.year) {
+                    movie.year = req.body.year;
                 }
-                else {
-                    console.log(movie);
-                    var o = getJSONObjectForMovieRequirement(req);
-                    res = res.status(200);
-                    o.body = {msg: "movie updated."}
-                    res.json(o);
+                if (req.body.genre) {
+                    movie.genre = req.body.genre;
                 }
+                if (req.body.leadactors) {
+                    for (let i = 0; i < req.body.leadactors.length; i++) {
+                        movie.leadActors[i].actorName = req.body.leadactors[i].actorName;
+                        movie.leadActors[i].characterName = req.body.leadactors[i].characterName;
+                    }
+                }
+                console.log(movie);
+                movie.save(function (err) {
+                    if (err) {
+                        res.status(405).send(err);
+                    } else {
+                        console.log(movie);
+                        var o = getJSONObjectForMovieRequirement(req);
+                        res = res.status(200);
+                        o.body = {msg: "movie updated."}
+                        res.json(o);
+                    }
                 });
             }
         });
     });
 
+router.route('/reviews')
+    .post(authJwtController.isAuthenticated, function(req, res) {
+        if (req.body.movietitle) {
+            var review = Review();
+            review.rating = req.body.rating;
+            review.quote = req.body.quote;
+            review.movietitle = req.body.movietitle;
+            review.reviewer = User.username;
+            review.save(function (err) {
+                if (err) {
+                    return res.status(400).send(err)
+                } else {
+                    return res.status(200).json("Review saved.")
+                }
+            })
+        } else {
+            return res.status(405).json("Must send movie title to add a review.")
+        }
+    })
+    .get(authJwtController.isAuthenticated, function(req, res){
+        Review.find({}, function(err, reviews){
+                if (err){
+                    return res.status(400).send(err)
+                }
+                else{
+                    return res.status(200).json([reviews])
+                }
+            });
+        });
+
+
+
+//first get both collections
+router.route('/movies/:reviews?')
+    .get(authJwtController.isAuthenticated, function(req, res) {
+        if (req.query.reviews) {
+            var movieReviews = Movie.aggregate([
+                //{ $match : {Movie.title : req.body.title } }
+                {
+                    $lookup: {
+                        "from": "movies",
+                        "localField": "title",
+                        "foreignField": "reviewID",
+                        "as": "moviereviews"
+                    }
+                }
+            ]).exec()
+            return res.status(200).json([movieReviews])
+
+        }
+    });
+
+        /*
+{
+   $lookup:
+     {
+       from: <collection to join>,
+       localField: <field from the input documents>,
+       foreignField: <field from the documents of the "from" collection>,
+       as: <output array field>
+     }
+}
+
+Movie.aggregate
+db.orders.aggregate([
+   {
+     $lookup:
+       {
+         from: "inventory",
+         localField: "item",
+         foreignField: "sku",
+         as: "inventory_docs"
+       }
+  }
+])
+
+{
+   "_id" : 1,
+   "item" : "almonds",
+   "price" : 12,
+   "quantity" : 2,
+   "inventory_docs" : [
+      { "_id" : 1, "sku" : "almonds", "description" : "product 1", "instock" : 120 }
+   ]
+}
+{
+   "_id" : 2,
+   "item" : "pecans",
+   "price" : 20,
+   "quantity" : 1,
+   "inventory_docs" : [
+      { "_id" : 4, "sku" : "pecans", "description" : "product 4", "instock" : 70 }
+   ]
+}
+{
+   "_id" : 3,
+   "inventory_docs" : [
+      { "_id" : 5, "sku" : null, "description" : "Incomplete" },
+      { "_id" : 6 }
+   ]
+}
+need .exec to execute the command with mongo
+use $match to match the query
+db.articles.aggregate(
+    [ { $match : { author : "dave" } } ]
+);
+use $avg call to average the reviews
+ */
 
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
