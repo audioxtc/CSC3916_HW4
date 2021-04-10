@@ -92,18 +92,42 @@ router.post('/signin', function (req, res) {
 //implement movie route
 router.route('/movies')
     .get(authJwtController.isAuthenticated, function (req, res) {
-    console.log(req.body);
-    //var movie = new Movie();
-    Movie.find({}, function (err, movies) {
+        console.log(req.body);
+        if (req.query.reviews){
+            Review.aggregate([
+                {$sort: { title: 1, avgReview: 1 }},
+                {$group: {_id: title } },
+                {
+                    avgReview: {$avg: "$rating"}
+                }
+
+            ]).exec(function (err, moviereviews) {
+                console.log(moviereviews.length)
+                console.log(JSON.stringify(moviereviews));
+                if (err) {
+                    return res.status(400).json(err)
+                }
+                if (!moviereviews) {
+                    return res.status(400).json({msg: "movie not found"})
+                } else {
+
+                    return res.status(200).json(moviereviews[0])
+                }
+            })
+        }
+    else {
+        Movie.find({}, function (err, movies) {
         if (err) {
             res.status(405).send(err);
             console.log(movies);
         } else {
-            var o = getJSONObjectForMovieRequirement(req);
+            //var o = getJSONObjectForMovieRequirement(req);
             res = res.status(200).json({msg: [movies]});
         }
-    })
-}).put(authJwtController.isAuthenticated,
+        });
+    }
+})
+    .put(authJwtController.isAuthenticated,
     function (req, res) {
         const genres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Thriller', 'Western'];
         Movie.findOne({title: req.body.title}, function (err, movie) {
@@ -139,7 +163,7 @@ router.route('/movies')
                 });
             }
         });
-    }).delete( authJwtController.isAuthenticated, function (req, res) {
+    }).delete(authJwtController.isAuthenticated, function (req, res) {
     if (req.body.title) {
         Movie.findOneAndDelete({title: req.body.title}, function (err, docs) {
             if (err) {
@@ -222,7 +246,7 @@ router.put('/movies/Id', authJwtController.isAuthenticated, function (req, res) 
             res.status(405).send(err);
         } else {
 
-            if (req.body.title){
+            if (req.body.title) {
                 movie.title = req.body.title
             }
             if (req.body.year) {
@@ -252,7 +276,7 @@ router.put('/movies/Id', authJwtController.isAuthenticated, function (req, res) 
 });
 
 router.route('/reviews')
-    .post(authJwtController.isAuthenticated, function(req, res) {
+    .post(authJwtController.isAuthenticated, function (req, res) {
         if (req.body.movietitle) {
             var review = new Review();
             review.rating = req.body.rating;
@@ -272,104 +296,101 @@ router.route('/reviews')
             return res.status(405).json("Must send movie title to add a review.")
         }
     })
-    .get(authJwtController.isAuthenticated, function(req, res){
-        Review.find({}, function(err, reviews){
-                if (err){
-                    return res.status(400).send(err)
-                }
-                else{
-                    return res.status(200).json([reviews])
-                }
-            });
+    .get(authJwtController.isAuthenticated, function (req, res) {
+        Review.find({}, function (err, reviews) {
+            if (err) {
+                return res.status(400).send(err)
+            } else {
+                return res.status(200).json([reviews])
+            }
         });
-
+    });
 
 
 //first get both collections
-router.get('/movies/:title', authJwtController.isAuthenticated, function(req, res) {
-        if (req.query.reviews) {
-           Movie.aggregate([
-                { $match : {title : req.params.title } },
-                {
-                    $lookup: {
-                        "from": "reviews",
-                        "localField": "title",
-                        "foreignField": "movietitle",
-                        "as": "moviereviews"
-                    }
+router.get('/movies/:title', authJwtController.isAuthenticated, function (req, res) {
+    if (req.query.reviews) {
+        Movie.aggregate([
+            {$match: {title: req.params.title}},
+            {
+                $lookup: {
+                    "from": "reviews",
+                    "localField": "title",
+                    "foreignField": "movietitle",
+                    "as": "moviereviews"
                 }
-            ]).exec(function(err, moviereviews) {
-                console.log(moviereviews.length)
-                console.log(JSON.stringify(moviereviews));
-                if (err) {
-                    return res.status(400).json(err)
-                }
-                if (!moviereviews) {
-                    return res.status(400).json({msg: "movie not found"})
-                }
-                else {
-                    return res.status(200).json(moviereviews[0])
-                }
-            })
-        }
-    });
+            }
+        ]).exec(function (err, moviereviews) {
+            console.log(moviereviews.length)
+            console.log(JSON.stringify(moviereviews));
+            if (err) {
+                return res.status(400).json(err)
+            }
+            if (!moviereviews) {
+                return res.status(400).json({msg: "movie not found"})
+            } else {
+                return res.status(200).json(moviereviews[0])
+            }
+        })
+    }
+});
 
-        /*
+/*
 {
-   $lookup:
-     {
-       from: <collection to join>,
-       localField: <field from the input documents>,
-       foreignField: <field from the documents of the "from" collection>,
-       as: <output array field>
-     }
+$lookup:
+{
+from: <collection to join>,
+localField: <field from the input documents>,
+foreignField: <field from the documents of the "from" collection>,
+as: <output array field>
+}
 }
 
 Movie.aggregate
 db.orders.aggregate([
-   {
-     $lookup:
-       {
-         from: "inventory",
-         localField: "item",
-         foreignField: "sku",
-         as: "inventory_docs"
-       }
-  }
+{
+$lookup:
+{
+ from: "inventory",
+ localField: "item",
+ foreignField: "sku",
+ as: "inventory_docs"
+}
+}
 ])
 
 {
-   "_id" : 1,
-   "item" : "almonds",
-   "price" : 12,
-   "quantity" : 2,
-   "inventory_docs" : [
-      { "_id" : 1, "sku" : "almonds", "description" : "product 1", "instock" : 120 }
-   ]
+"_id" : 1,
+"item" : "almonds",
+"price" : 12,
+"quantity" : 2,
+"inventory_docs" : [
+{ "_id" : 1, "sku" : "almonds", "description" : "product 1", "instock" : 120 }
+]
 }
 {
-   "_id" : 2,
-   "item" : "pecans",
-   "price" : 20,
-   "quantity" : 1,
-   "inventory_docs" : [
-      { "_id" : 4, "sku" : "pecans", "description" : "product 4", "instock" : 70 }
-   ]
+"_id" : 2,
+"item" : "pecans",
+"price" : 20,
+"quantity" : 1,
+"inventory_docs" : [
+{ "_id" : 4, "sku" : "pecans", "description" : "product 4", "instock" : 70 }
+]
 }
 {
-   "_id" : 3,
-   "inventory_docs" : [
-      { "_id" : 5, "sku" : null, "description" : "Incomplete" },
-      { "_id" : 6 }
-   ]
+"_id" : 3,
+"inventory_docs" : [
+{ "_id" : 5, "sku" : null, "description" : "Incomplete" },
+{ "_id" : 6 }
+]
 }
 need .exec to execute the command with mongo
 use $match to match the query
 db.articles.aggregate(
-    [ { $match : { author : "dave" } } ]
+[ { $match : { author : "dave" } } ]
 );
 use $avg call to average the reviews
- */
+*/
 
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
