@@ -100,9 +100,7 @@ router.route('/movies')
             console.log(movies);
         } else {
             var o = getJSONObjectForMovieRequirement(req);
-            res = res.status(200);
-            o.body = {msg: [movies]};
-            res.json(o);
+            res = res.status(200).json({msg: [movies]});
         }
     })
 }).put(authJwtController.isAuthenticated,
@@ -237,6 +235,9 @@ router.put('/movies/Id', authJwtController.isAuthenticated, function (req, res) 
                     movie.leadActors[i].actorName = req.body.leadactors[i].actorName;
                     movie.leadActors[i].characterName = req.body.leadactors[i].characterName;
                 }
+            }
+            if (req.body.imageUrl) {
+                movie.imageUrl = req.body.imageUrl;
             }
             movie.save(function (err) {
                 if (err)

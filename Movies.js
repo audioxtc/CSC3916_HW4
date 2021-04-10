@@ -28,7 +28,8 @@ var movieSchema = new Schema({
     leadActors: [{
         actorName: String,
         characterName: String
-    }]
+    }],
+    imageUrl: String
 
 });
 
@@ -53,6 +54,9 @@ movieSchema.pre('save', function(next) {
         if (this.leadActors[i].actorName === '' || this.leadActors[i].characterName === '') {
             return next({code: 400, message: "actor name or character name cannot be null."})
         }
+    }
+    if (this.imageUrl === null){
+        return next({code: 400, message: "Image url cannot be blank."})
     }
     //valid movie info
     next();
