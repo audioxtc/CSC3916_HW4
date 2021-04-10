@@ -90,7 +90,8 @@ router.post('/signin', function (req, res) {
 });
 
 //implement movie route
-router.get('/movies', authJwtController.isAuthenticated, function (req, res) {
+router.route('/movies')
+    .get(authJwtController.isAuthenticated, function (req, res) {
     console.log(req.body);
     //var movie = new Movie();
     Movie.find({}, function (err, movies) {
@@ -104,63 +105,43 @@ router.get('/movies', authJwtController.isAuthenticated, function (req, res) {
             res.json(o);
         }
     })
-
-});
-/*
-router.get('/movies/:movieID', authJwtController.isAuthenticated, function (req, res) {
-    //let movieID = req.params.movieID
-    console.log(req.body);
-    //var movie = new Movie();
-    Movie.findById(req.params.movieID, function (err, movie) {
-        if (err) {
-            res.status(405).send(err);
+}).put('/movies', authJwtController.isAuthenticated,
+    function (req, res) {
+        const genres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Thriller', 'Western'];
+        Movie.findOne({title: req.body.title}, function (err, movie) {
             console.log(movie);
-        } else {
-            var o = getJSONObjectForMovieRequirement(req);
-            return res.status(200).json(movie)
-            o.body = {msg: movie};
-            res.json(o);
-        }
-    })
-
-});
-
- */
-
-router.put('/movies/id', authJwtController.isAuthenticated, function (req, res) {
-    Movie.findById(req.body.id, function (err, movie) {
-        if (err) {
-            console.log(err)
-            res.status(405).send(err);
-        } else {
-
-            if (req.body.title){
-                movie.title = req.body.title
-            }
-            if (req.body.year) {
-                movie.year = req.body.year;
-            }
-            if (req.body.genre) {
-                movie.genre = req.body.genre;
-            }
-            if (req.body.leadactors) {
-                for (let i = 0; i < req.body.leadactors.length; i++) {
-                    movie.leadActors[i].actorName = req.body.leadactors[i].actorName;
-                    movie.leadActors[i].characterName = req.body.leadactors[i].characterName;
+            if (err) {
+                res.status(405).send(err);
+            } else {
+                if (req.body.year) {
+                    movie.year = req.body.year;
                 }
-            }
-            movie.save(function (err) {
-                if (err)
-                    return res.status(404).json("error saving updated movie.");
-                else {
-                    return res.status(200).json("movie updated.");
+                if (req.body.genre) {
+                    if (!genres.includes(req.body.genre)) {
+                        movie.genre = req.body.genre;
+                    }
                 }
-            })
-        }
-    });
-});
-
-router.delete('/movies', authJwtController.isAuthenticated, function (req, res) {
+                if (req.body.leadactors) {
+                    for (let i = 0; i < req.body.leadactors.length; i++) {
+                        movie.leadActors[i].actorName = req.body.leadactors[i].actorName;
+                        movie.leadActors[i].characterName = req.body.leadactors[i].characterName;
+                    }
+                }
+                console.log(movie);
+                movie.save(function (err) {
+                    if (err) {
+                        res.status(405).send(err);
+                    } else {
+                        console.log(movie);
+                        var o = getJSONObjectForMovieRequirement(req);
+                        res = res.status(200);
+                        o.body = {msg: "movie updated."}
+                        res.json(o);
+                    }
+                });
+            }
+        });
+    }).delete('/movies', authJwtController.isAuthenticated, function (req, res) {
     if (req.body.title) {
         Movie.findOneAndDelete({title: req.body.title}, function (err, docs) {
             if (err) {
@@ -197,11 +178,7 @@ router.delete('/movies', authJwtController.isAuthenticated, function (req, res) 
             }
         }
     }
-
-});
-
-
-router.post('/movies', authJwtController.isAuthenticated, function (req, res) {
+}).post('/movies', authJwtController.isAuthenticated, function (req, res) {
     console.log(req.body);
     var movie = new Movie();
     movie.leadActors = req.body.leadactors;
@@ -223,43 +200,54 @@ router.post('/movies', authJwtController.isAuthenticated, function (req, res) {
     //console.log('Movie saved.');
 });
 
-router.put('/movies', authJwtController.isAuthenticated,
-    function (req, res) {
-        const genres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Thriller', 'Western'];
-        Movie.findOne({title: req.body.title}, function (err, movie) {
+router.get('/movies/:movieId', authJwtController.isAuthenticated, function (req, res) {
+    //let movieID = req.params.movieID
+    console.log(req.body);
+    //var movie = new Movie();
+    Movie.findById({_id: req.body.id}, function (err, movie) {
+        if (err) {
+            res.status(405).send(err);
             console.log(movie);
-            if (err) {
-                res.status(405).send(err);
-            } else {
-                if (req.body.year) {
-                    movie.year = req.body.year;
-                }
-                if (req.body.genre) {
-                    if (!genres.includes(req.body.genre)) {
-                        movie.genre = req.body.genre;
-                    }
-                }
-                if (req.body.leadactors) {
-                    for (let i = 0; i < req.body.leadactors.length; i++) {
-                        movie.leadActors[i].actorName = req.body.leadactors[i].actorName;
-                        movie.leadActors[i].characterName = req.body.leadactors[i].characterName;
-                    }
-                }
-                console.log(movie);
-                movie.save(function (err) {
-                    if (err) {
-                        res.status(405).send(err);
-                    } else {
-                        console.log(movie);
-                        var o = getJSONObjectForMovieRequirement(req);
-                        res = res.status(200);
-                        o.body = {msg: "movie updated."}
-                        res.json(o);
-                    }
-                });
+        } else {
+            return res.status(200).json(movie)
+        }
+    })
+
+});
+
+
+router.put('/movies/Id', authJwtController.isAuthenticated, function (req, res) {
+    Movie.findById(req.body.id, function (err, movie) {
+        if (err) {
+            console.log(err)
+            res.status(405).send(err);
+        } else {
+
+            if (req.body.title){
+                movie.title = req.body.title
             }
-        });
+            if (req.body.year) {
+                movie.year = req.body.year;
+            }
+            if (req.body.genre) {
+                movie.genre = req.body.genre;
+            }
+            if (req.body.leadactors) {
+                for (let i = 0; i < req.body.leadactors.length; i++) {
+                    movie.leadActors[i].actorName = req.body.leadactors[i].actorName;
+                    movie.leadActors[i].characterName = req.body.leadactors[i].characterName;
+                }
+            }
+            movie.save(function (err) {
+                if (err)
+                    return res.status(404).json("error saving updated movie.");
+                else {
+                    return res.status(200).json("movie updated.");
+                }
+            })
+        }
     });
+});
 
 router.route('/reviews')
     .post(authJwtController.isAuthenticated, function(req, res) {
