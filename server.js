@@ -104,11 +104,11 @@ router.route('/movies')
                         "as": "moviereviews"
                     }
                 },
-                {$group: {_id: movietitle } },
-                {
+                {$group:
+                        {_id: '$title',
                     avgReview: {$avg: "$rating"}
-                },
-                {$sort: { title: 1, avgReview: 1 }}
+                }},
+                {$sort: { avgReview: 5 }}
 
             ]).exec(function (err, moviereviews) {
                 console.log(moviereviews.length)
