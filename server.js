@@ -105,7 +105,7 @@ router.route('/movies')
             res.json(o);
         }
     })
-}).put('/movies', authJwtController.isAuthenticated,
+}).put(authJwtController.isAuthenticated,
     function (req, res) {
         const genres = ['Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Thriller', 'Western'];
         Movie.findOne({title: req.body.title}, function (err, movie) {
@@ -141,7 +141,7 @@ router.route('/movies')
                 });
             }
         });
-    }).delete('/movies', authJwtController.isAuthenticated, function (req, res) {
+    }).delete( authJwtController.isAuthenticated, function (req, res) {
     if (req.body.title) {
         Movie.findOneAndDelete({title: req.body.title}, function (err, docs) {
             if (err) {
@@ -178,7 +178,7 @@ router.route('/movies')
             }
         }
     }
-}).post('/movies', authJwtController.isAuthenticated, function (req, res) {
+}).post(authJwtController.isAuthenticated, function (req, res) {
     console.log(req.body);
     var movie = new Movie();
     movie.leadActors = req.body.leadactors;
@@ -204,7 +204,7 @@ router.get('/movies/:movieId', authJwtController.isAuthenticated, function (req,
     //let movieID = req.params.movieID
     console.log(req.body);
     //var movie = new Movie();
-    Movie.findById({_id: req.body.id}, function (err, movie) {
+    Movie.findById({_id: req.params.id}, function (err, movie) {
         if (err) {
             res.status(405).send(err);
             console.log(movie);

@@ -14,6 +14,10 @@ let login_details = {
     password: '123@abc'
 }
 
+let movie_details = {
+
+}
+
 let review_details = {
     movietitle: "Swingers",
     rating: 5,
@@ -62,19 +66,19 @@ describe('Register, Login and Call Test Collection with Basic Auth and JWT Auth'
                         res.body.should.have.property('token');
                         let token = res.body.token;
                         console.log(token);
-                        //chai.request(server)
-                        //    .post('/movies')
-                        //    .set('Authorization', token)
-                        //    .send(movie_details)
-                        //    .end((err, res) => {
-                        //        res.should.have.status(200);
-                                chai.request(server)
-                                    .post('/reviews')
-                                    .set('Authorization', token)
-                                    .send(review_details)
-                                    .end((err, res) => {
-                                        res.should.have.status(200);
-                                        done();
+                        chai.request(server)
+                            .post('/movies/:movieId=60518999e491ec0004eff5e9')
+                            .set('Authorization', token)
+                            .send(movie_details)
+                            .end((err, res) => {
+                                res.should.have.status(200);
+                                //chai.request(server)
+                                //    .post('/reviews')
+                                //    .set('Authorization', token)
+                                //    .send(review_details)
+                                //    .end((err, res) => {
+                                //        res.should.have.status(200);
+                                //        done();
                                    // })
                             })
                     })
