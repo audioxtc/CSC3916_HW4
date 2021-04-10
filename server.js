@@ -207,7 +207,7 @@ router.get('/movies/:movieId', authJwtController.isAuthenticated, function (req,
     Movie.findById({_id: req.params.id}, function (err, movie) {
         if (err) {
             res.status(405).send(err);
-            console.log(movie);
+            console.log(err);
         } else {
             return res.status(200).json(movie)
         }
