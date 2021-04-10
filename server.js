@@ -302,7 +302,11 @@ router.get('/movies/:title', authJwtController.isAuthenticated, function(req, re
                 console.log(JSON.stringify(moviereviews));
                 if (err) {
                     return res.status(400).json(err)
-                } else {
+                }
+                if (!moviereviews) {
+                    return res.status(400).json({msg: "movie not found"})
+                }
+                else {
                     return res.status(200).json(moviereviews[0])
                 }
             })
