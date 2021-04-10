@@ -94,7 +94,16 @@ router.route('/movies')
     .get(authJwtController.isAuthenticated, function (req, res) {
         console.log(req.body);
         if (req.query.reviews){
-            Review.aggregate([
+            Movie.aggregate([
+                {$match: {title: req.params.title}},
+                {
+                    $lookup: {
+                        "from": "reviews",
+                        "localField": "title",
+                        "foreignField": "movietitle",
+                        "as": "moviereviews"
+                    }
+                },
                 {$sort: { title: 1, avgReview: 1 }},
                 {$group: {_id: title } },
                 {
