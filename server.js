@@ -95,7 +95,7 @@ router.route('/movies')
         console.log(req.body);
         if (req.query.reviews){
             Movie.aggregate([
-                {$match: {title: req.params.title}},
+                //{$match: {title: req.params.title}},
                 {
                     $lookup: {
                         "from": "reviews",
@@ -120,7 +120,7 @@ router.route('/movies')
                     return res.status(400).json({msg: "movie not found"})
                 } else {
 
-                    return res.status(200).json(moviereviews[0])
+                    return res.status(200).json(moviereviews)
                 }
             })
         }
