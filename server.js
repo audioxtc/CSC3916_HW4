@@ -204,7 +204,7 @@ router.get('/movies/:movieId', authJwtController.isAuthenticated, function (req,
     //let movieID = req.params.movieID
     console.log(req.body);
     //var movie = new Movie();
-    Movie.findById({_id: req.params.id}, function (err, movie) {
+    Movie.findById(req.params.movieId, function (err, movie) {
         if (err) {
             res.status(405).send(err);
             console.log(err);
