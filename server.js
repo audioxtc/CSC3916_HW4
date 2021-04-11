@@ -104,7 +104,7 @@ router.route('/movies')
                         "as": "moviereviews"
                     }},
                 {$addFields : {avg: { $avg: "$moviereviews.rating"}}},
-                {$sort: { avg: 1 }},
+                {$sort: { avg: -1 }},
                 {$limit: 5}
 
             ]).exec(function (err, moviereviews) {
@@ -117,7 +117,7 @@ router.route('/movies')
                     return res.status(400).json({msg: "movie not found"})
                 } else {
 
-                    return res.status(200).json(moviereviews)
+                    return res.status(200).json(moviereviews[0])
                 }
             })
         }
@@ -314,10 +314,10 @@ router.route('/reviews')
 
 
 //first get both collections
-router.get('/movies/:title', authJwtController.isAuthenticated, function (req, res) {
+router.get('/movies/:movieId', authJwtController.isAuthenticated, function (req, res) {
     if (req.query.reviews) {
         Movie.aggregate([
-            {$match: {title: req.params.title}},
+            {$match: {_id: req.params.movieId}},
             {
                 $lookup: {
                     "from": "reviews",

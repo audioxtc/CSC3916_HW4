@@ -78,7 +78,7 @@ describe('Register, Login and Call Test Collection with Basic Auth and JWT Auth'
                                 //    .send(review_details)
                                 //    .end((err, res) => {
                                 //        res.should.have.status(200);
-                                //        done();
+                                done();
                                    // })
                             })
                     })
