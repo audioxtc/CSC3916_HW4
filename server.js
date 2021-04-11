@@ -102,8 +102,9 @@ router.route('/movies')
                         "localField": "title",
                         "foreignField": "movietitle",
                         "as": "moviereviews"
-                    },
-                    $group: {_id: '$title', avgReview: {$avg: '$rating'}
+                    }},
+                {
+                    $group: {_id: null, avgReview: {$avg: '$rating'}
                 }}
                 //},
                 //{$group:
