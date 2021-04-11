@@ -96,18 +96,19 @@ router.route('/movies')
         if (req.query.reviews){
             Movie.aggregate([
                 //{$match: {title: req.params.title}},
-                //{
-                //    $lookup: {
-                //        "from": "reviews",
-                //        "localField": "title",
-                //        "foreignField": "movietitle",
-                //        "as": "moviereviews"
-                //    }
+                {
+                    $lookup: {
+                        "from": "reviews",
+                        "localField": "title",
+                        "foreignField": "movietitle",
+                        "as": "moviereviews"
+                    }
+                }
                 //},
-                {$group:
-                        {_id: '$title',
-                    avgReview: {$avg: "$rating"}
-                }}
+                //{$group:
+                //        {_id: '$title',
+                //    avgReview: {$avg: "$rating"}
+                //}}
                 //{$sort: { avgReview: 5 }}
 
             ]).exec(function (err, moviereviews) {
