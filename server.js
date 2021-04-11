@@ -104,7 +104,7 @@ router.route('/movies')
                         "as": "moviereviews"
                     }},
                 {
-                    $group: {_id: null, avgReview: {$avg: '$rating'}
+                    $group: {_id: 'avgReview', avg: {$avg: '$rating'}
                 }}
                 //},
                 //{$group:
