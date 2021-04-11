@@ -17,7 +17,6 @@ var Actor = require('./Actors');
 var Review = require('./Reviews');
 const mongoose = require("mongoose");
 
-
 var app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -316,8 +315,9 @@ router.route('/reviews')
 //first get both collections
 router.get('/movies/:movieId', authJwtController.isAuthenticated, function (req, res) {
     if (req.query.reviews) {
+        //let _id = mongoose.Types.ObjectId(req.params.movieId);
         Movie.aggregate([
-            {$match: {_id: req.params.movieId}},
+            {$match: {_id: mongoose.Types.ObjectId(req.params.movieId)}},
             {
                 $lookup: {
                     "from": "reviews",
