@@ -339,6 +339,18 @@ router.get('/movies/:movieId', authJwtController.isAuthenticated, function (req,
             }
         })
     }
+    else {
+        console.log(req.body);
+        //var movie = new Movie();
+        Movie.findById(req.params.movieId, function (err, movie) {
+            if (err) {
+                res.status(405).send(err);
+                console.log(err);
+            } else {
+                return res.status(200).json(movie)
+            }
+        })
+    }
 });
 
 /*
