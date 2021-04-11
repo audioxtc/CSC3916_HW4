@@ -103,15 +103,9 @@ router.route('/movies')
                         "foreignField": "movietitle",
                         "as": "moviereviews"
                     }},
-                {
-                    $group: {_id: '$title', avgReview: {$avg: 'moviereviews.$rating'}
-                }}
-                //},
-                //{$group:
-                //        {_id: '$title',
-                //    avgReview: {$avg: "$rating"}
-                //}}
-                //{$sort: { avgReview: 5 }}
+                {$addFields : {avg: { $avg: "$moviereviews.rating"}}},
+                {$sort: { avg: 1 }},
+                {$limit: 5}
 
             ]).exec(function (err, moviereviews) {
                 console.log(moviereviews.length)
