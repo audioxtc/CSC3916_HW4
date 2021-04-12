@@ -297,7 +297,9 @@ router.route('/reviews')
                     return res.status(200).json("Review saved.")
                 }
             })
-        } else {
+        }
+
+        else {
             return res.status(405).json("Must send movie title to add a review.")
         }
     })
@@ -326,6 +328,9 @@ router.get('/movies/:movieId', authJwtController.isAuthenticated, function (req,
                     "as": "moviereviews"
                 }},
             {$addFields : {avgRating: { $avg: "$moviereviews.rating"}}}
+            {$sort: { avg: -1 }},
+            {$limit: 5}
+
         ]).exec(function (err, moviereviews) {
             console.log(moviereviews.length)
             console.log(JSON.stringify(moviereviews));
