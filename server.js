@@ -102,7 +102,7 @@ router.route('/movies')
                         "foreignField": "movietitle",
                         "as": "moviereviews"
                     }},
-                {$addFields : {avg: { $avg: "$moviereviews.rating"}}},
+                {$addFields : {avgRating: { $avg: "$moviereviews.rating"}}},
                 {$sort: { avg: -1 }},
                 {$limit: 5}
 
