@@ -327,7 +327,7 @@ router.get('/movies/:movieId', authJwtController.isAuthenticated, function (req,
                     "foreignField": "movietitle",
                     "as": "moviereviews"
                 }},
-            {$addFields : {avgRating: { $avg: "$moviereviews.rating"}}}
+            {$addFields : {avgRating: { $avg: "$moviereviews.rating"}}},
             {$sort: { avg: -1 }},
             {$limit: 5}
 
