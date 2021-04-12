@@ -324,8 +324,8 @@ router.get('/movies/:movieId', authJwtController.isAuthenticated, function (req,
                     "localField": "title",
                     "foreignField": "movietitle",
                     "as": "moviereviews"
-                }
-            }
+                }},
+            {$addFields : {avgRating: { $avg: "$moviereviews.rating"}}}
         ]).exec(function (err, moviereviews) {
             console.log(moviereviews.length)
             console.log(JSON.stringify(moviereviews));

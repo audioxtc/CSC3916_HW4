@@ -67,7 +67,7 @@ describe('Register, Login and Call Test Collection with Basic Auth and JWT Auth'
                         let token = res.body.token;
                         console.log(token);
                         chai.request(server)
-                            .get('/movies/6062680590e5660004e025ef')
+                            .get('/movies/6062680590e5660004e025ef?reviews=true')
                             .set('Authorization', token)
                             .send()
                             .end((err, res) => {
