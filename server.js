@@ -103,8 +103,9 @@ router.route('/movies')
                         "as": "moviereviews"
                     }},
                 {$addFields : {avgRating: { $avg: "$moviereviews.rating"}}},
-                {$sort: { avg: -1 }},
-                {$limit: 5}
+                {$sort: { avgRating: -1 }},
+                {$limit: 5},
+
 
             ]).exec(function (err, moviereviews) {
                 console.log(moviereviews.length)
